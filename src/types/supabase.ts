@@ -34,7 +34,215 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      images: {
+        Row: {
+          created_at: string | null
+          filename: string
+          height: number | null
+          id: string
+          mime_type: string
+          ocr_language: string | null
+          ocr_text: string | null
+          owner_id: string
+          report_id: string | null
+          size: number
+          storage_path: string
+          updated_at: string | null
+          width: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          filename: string
+          height?: number | null
+          id?: string
+          mime_type: string
+          ocr_language?: string | null
+          ocr_text?: string | null
+          owner_id: string
+          report_id?: string | null
+          size: number
+          storage_path: string
+          updated_at?: string | null
+          width?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          filename?: string
+          height?: number | null
+          id?: string
+          mime_type?: string
+          ocr_language?: string | null
+          ocr_text?: string | null
+          owner_id?: string
+          report_id?: string | null
+          size?: number
+          storage_path?: string
+          updated_at?: string | null
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "images_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          full_name: string | null
+          id: string
+          preferences: Json | null
+          role: string | null
+          updated_at: string | null
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          full_name?: string | null
+          id: string
+          preferences?: Json | null
+          role?: string | null
+          updated_at?: string | null
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          full_name?: string | null
+          id?: string
+          preferences?: Json | null
+          role?: string | null
+          updated_at?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          content: Json
+          created_at: string | null
+          id: string
+          owner_id: string
+          pdf_url: string | null
+          status: string | null
+          template_id: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          content?: Json
+          created_at?: string | null
+          id?: string
+          owner_id: string
+          pdf_url?: string | null
+          status?: string | null
+          template_id?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: Json
+          created_at?: string | null
+          id?: string
+          owner_id?: string
+          pdf_url?: string | null
+          status?: string | null
+          template_id?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_sharing: {
+        Row: {
+          created_at: string | null
+          id: string
+          shared_with: string
+          template_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          shared_with: string
+          template_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          shared_with?: string
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_sharing_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      templates: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          name: string
+          owner_id: string
+          parent_id: string | null
+          structure: Json
+          styling: Json | null
+          updated_at: string | null
+          version: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name: string
+          owner_id: string
+          parent_id?: string | null
+          structure?: Json
+          styling?: Json | null
+          updated_at?: string | null
+          version?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          owner_id?: string
+          parent_id?: string | null
+          structure?: Json
+          styling?: Json | null
+          updated_at?: string | null
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "templates_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
