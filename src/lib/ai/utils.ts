@@ -11,7 +11,7 @@ export function createEnhancementPrompt(
   const actualLanguage = language || 'french';
 
   // Base prompt structure
-  let prompt = `
+  let promptText = `
 I need you to transform the following raw text (extracted from OCR) into a well-structured, professional report.
 
 Language: ${actualLanguage}
@@ -23,88 +23,130 @@ Here's the raw text:
 ${text}
 ---
 
-`; 
-
-  // Add French-specific template if language is French
-  if (actualLanguage.toLowerCase().includes('french') || actualLanguage.toLowerCase().includes('français')) {
-    prompt += `
-Please format the report following this French report structure:
-
-1. "Rapport d'Évaluation" as the main title
-2. Basic information at the top (name, date, etc.)
-3. "Contexte de l'Évaluation" section explaining the purpose of the evaluation
-4. "Observations Initiales" section with initial observations
-5. "Observations en Conduite" section with detailed observations, which may include subsections like "Maîtrise Technique"
-6. "Conclusion et Recommandations" section summarizing findings
-7. "Points à souligner" section with key highlights
-8. Evaluator name at the end
-
-Here is an example of the structure to follow:
-
-
-Rapport dÉvaluation
-
-Nom du chauffeur : Mme Salmouni Ouafae
-Date : 10 avril 2025
-
-Madame est arrivée à l'heure et vêtue d'une façon appropriée dès le départ.
-Madame est très à l'aise au volant, professionnelle.
-Bonne attitude. Peu de fautes de conduite.
-Excellente. Rien à dire de négatif.
-
-Contexte de l'Évaluation
-
-Une évaluation des compétences de conduite a été réalisée pour Mme Salmouni Ouafae
-afin de vérifier ses aptitudes générales, sa maîtrise du véhicule et sa conformité aux
-exigences opérationnelles.
-
-Observations Initiales
-
-Mme Salmouni s'est présentée à l'heure prévue et était vêtue de manière appropriée. Elle a
-démontré dès le départ une attitude professionnelle et une grande aisance dans son rôle.
-
-Observations en Conduite
-
-Maîtrise Technique
-
-Mme Salmouni a parfaitement manœuvré le véhicule avec assurance.
-Elle a effectué toutes les sorties et entrées de cour de manière fluide et sécuritaire.
-Les virages, les arrêts et les reprises ont été réalisés avec précision.
-Les manœuvres de recul ont été bien maîtrisées, sans difficulté apparente.
-
-Conclusion et Recommandations
-
-Mme Salmouni démontre toutes les compétences nécessaires pour assurer ce travail de
-manière sécuritaire et efficace. Son professionnalisme, sa maîtrise technique et son
-comportement en conduite sont exemplaires.
-
-Points à souligner
-
-Aucune recommandation particulière, le niveau de compétence est excellent.
-Peut être recommandée sans réserve pour le poste.
-
-Évaluateur : Richard Ouimet
-
-Ensure the report is written in formal, professional French with proper grammar and vocabulary. Adapt the structure to fit the content of the raw text while maintaining this format.
 `;
-  } else {
-    // Standard instructions for other languages
-    prompt += `
-Please:
-1. Correct any spelling or grammar errors
-2. Organize the content into logical sections with headings
-3. Format the text professionally
-4. Maintain all factual information from the original text
-5. Add appropriate transitions between sections
-6. Use professional language suitable for a formal report
-`;
-  }
 
-  prompt += `
+  // Always use the specific template for all reports, regardless of language
+  promptText += `
+Please format the report following EXACTLY this template structure:
+
+# Rapport d'Évaluation
+
+**Nom du chauffeur :** [Driver Name]
+**Date :** [Current Date]
+**Évaluateur :** [Evaluator Name]
+
+---
+
+## Contexte de l'Évaluation
+
+[Purpose of the evaluation, including verification of driving skills, vehicle control, safety rules, and general attitude]
+
+---
+
+## Observations Initiales
+
+[Initial observations about the driver's appearance, punctuality, attitude during welcome]
+
+---
+
+## Observations en Conduite
+
+### Comportement Général
+
+[General behavior observations during driving]
+
+### Réactions aux Situations Routières
+
+[Observations about reactions to road situations]
+
+### Maîtrise Technique
+
+[Technical mastery observations, including vehicle control, maneuvers]
+
+### Réceptivité aux Commentaires
+
+[Observations about receptiveness to feedback]
+
+---
+
+## Conclusion et Recommandations
+
+[Summary of findings and specific recommendations]
+
+### Recommandations
+
+[Specific recommendations about hiring/training needs]
+
+You MUST follow this EXACT template structure. Fill in the sections with relevant information from the raw text. If information for a section is not available in the raw text, make a reasonable inference based on the available information. Ensure the report is written in formal, professional French with proper grammar and vocabulary.
+
+Here is a complete example of the expected format:
+
+# Rapport d'Évaluation
+
+**Nom du chauffeur :** Oussama Leheouir
+**Date :** 15 avril 2025
+**Évaluateur :** Richard Ouimet
+
+---
+
+## Contexte de l'Évaluation
+
+Cette évaluation a pour but de vérifier les compétences de conduite de M. Stéphane Massé, incluant la maîtrise du véhicule, l'application des règles de sécurité et l'attitude générale au volant dans un contexte professionnel.
+
+---
+
+## Observations Initiales
+
+M. Massé s'est présenté à l'heure, vêtu de manière convenable. Il a démontré du respect et une attitude polie lors de l'accueil.
+
+---
+
+## Observations en Conduite
+
+### Comportement Général
+
+- Dès la sortie du stationnement, M. Massé s'est montré distrait.
+- Il ne consulte pas régulièrement ses rétroviseurs, ce qui compromet sa vigilance.
+- Lors d'un arrêt au feu, il a affirmé que le feu était rouge alors qu'il était vert.
+- Lorsque je lui ai demandé s'il avait un problème de vision, il a répondu non.
+
+### Réactions aux Situations Routières
+
+- Sur la rue de la Commune, il a détourné son attention vers la Grande Roue, qu'il a trouvée belle, mais a cessé de regarder devant lui.
+- Il s'est alors engagé dans la voie inverse, face à d'autres véhicules. J'ai dû intervenir immédiatement.
+- Il semble distrait malgré mes remarques à ce sujet.
+- Il parle fort et fait régulièrement des commentaires sur les autres conducteurs, les taxis et les motos.
+
+### Maîtrise Technique
+
+- Il éprouve de la difficulté à freiner de manière douce et sécuritaire.
+- Il ne maîtrise pas les manœuvres de recul ; le bus ne reculait pas correctement sous sa conduite.
+- Les virages, à droite comme à gauche, ont été difficiles à exécuter correctement.
+- Lors d'une tentative de virage à droite sur la rue Saint-Antoine, il était mal positionné : il était sur la voie du centre au lieu de celle de droite.
+- Il n'a pas arrêté au retour à la voie ferrée malgré mes instructions données à l'aller. Lorsqu'interrogé, il a simplement dit : « J'ai oublié. »
+
+### Réceptivité aux Commentaires
+
+- Malgré les conseils prodigués, M. Massé a affirmé que sa méthode de conduite était préférable.
+- Il montre peu de réceptivité à la correction et semble peu disposé à ajuster son comportement de conduite.
+
+---
+
+## Conclusion et Recommandations
+
+M. Stéphane Massé présente plusieurs lacunes sérieuses concernant la sécurité et le contrôle du véhicule. Son manque de vigilance, ses réflexes incertains, ainsi que sa réticence à corriger ses méthodes compromettent sa capacité à assurer un service de conduite sécuritaire.
+
+### Recommandations
+
+- **Non recommandé** pour un poste de conduite sans formation complémentaire.
+- Une **supervision accrue** et un **programme de réentraînement obligatoire** sont nécessaires avant toute réévaluation.
+`;
+
+  promptText += `
 Return the enhanced text in a clean, well-structured format with clear section headings.
 `;
 
-  return prompt;
+  return promptText;
 }
 
 /**
