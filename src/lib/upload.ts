@@ -78,10 +78,10 @@ export async function uploadFile(
       throw error;
     }
 
-    // Get the public URL for the file
-    const { data: urlData } = supabase.storage
+    // Get a signed URL for the file (since it's in a private bucket)
+    const { data: urlData } = await supabase.storage
       .from(bucket)
-      .getPublicUrl(filePath);
+      .createSignedUrl(filePath, 60 * 60); // 1 hour expiry
 
     // Create a record in the images table
     const imageRecord: Partial<ImageInsert> = {
@@ -121,7 +121,7 @@ export async function uploadFile(
       fileId: file.id,
       success: true,
       filePath,
-      fileUrl: urlData.publicUrl,
+      fileUrl: urlData?.signedUrl || '',
     };
   } catch (error) {
     console.error('Error uploading file:', error);

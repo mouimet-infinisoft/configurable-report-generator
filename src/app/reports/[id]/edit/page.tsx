@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useAuth } from '@/lib/auth/auth-context';
 import { getReport } from '@/lib/db/reports';
 import { supabase } from '@/lib/supabase';
@@ -49,17 +48,17 @@ export default function ReportEditPage() {
 
         if (imageError) throw imageError;
 
-        // Get public URLs for the images
+        // Get signed URLs for the images (since they're in a private bucket)
         const imagesWithUrls = await Promise.all(
           imageData.map(async (image) => {
             const bucket = image.mime_type.startsWith('image/') ? 'images' : 'pdfs';
-            const { data: urlData } = supabase.storage
+            const { data: urlData } = await supabase.storage
               .from(bucket)
-              .getPublicUrl(image.storage_path);
+              .createSignedUrl(image.storage_path, 60 * 60); // 1 hour expiry
 
             return {
               ...image,
-              url: urlData.publicUrl,
+              url: urlData?.signedUrl || '',
             };
           })
         );
@@ -177,12 +176,11 @@ export default function ReportEditPage() {
                     <div className="flex flex-col md:flex-row gap-4">
                       <div className="w-full md:w-1/3">
                         <div className="relative h-48 bg-gray-100 dark:bg-gray-700 rounded">
-                          <Image
+                          {/* Use regular img tag for now to debug */}
+                          <img
                             src={image.url as string}
                             alt={image.filename as string}
                             className="w-full h-full object-contain rounded"
-                            fill
-                            sizes="(max-width: 768px) 100vw, 33vw"
                           />
                         </div>
                         <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 truncate">

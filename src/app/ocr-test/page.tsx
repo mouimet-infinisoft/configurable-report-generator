@@ -11,41 +11,41 @@ export default function OCRTestPage() {
   const [images, setImages] = useState<Array<{ id: string; url: string; name: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Fetch user's images
   useEffect(() => {
     async function fetchImages() {
       if (!user) return;
-      
+
       try {
         setIsLoading(true);
         setError(null);
-        
+
         // Get images from the database
         const { data, error } = await supabase
           .from('images')
           .select('*')
           .eq('owner_id', user.id)
           .order('created_at', { ascending: false });
-          
+
         if (error) throw error;
-        
-        // Get public URLs for the images
+
+        // Get signed URLs for the images (since they're in a private bucket)
         const imagesWithUrls = await Promise.all(
           data.map(async (image) => {
             const bucket = image.mime_type.startsWith('image/') ? 'images' : 'pdfs';
-            const { data: urlData } = supabase.storage
+            const { data: urlData } = await supabase.storage
               .from(bucket)
-              .getPublicUrl(image.storage_path);
-              
+              .createSignedUrl(image.storage_path, 60 * 60); // 1 hour expiry
+
             return {
               id: image.id,
-              url: urlData.publicUrl,
+              url: urlData?.signedUrl || '',
               name: image.filename,
             };
           })
         );
-        
+
         setImages(imagesWithUrls);
       } catch (err) {
         console.error('Error fetching images:', err);
@@ -54,10 +54,10 @@ export default function OCRTestPage() {
         setIsLoading(false);
       }
     }
-    
+
     fetchImages();
   }, [user]);
-  
+
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -74,11 +74,11 @@ export default function OCRTestPage() {
       </div>
     );
   }
-  
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">OCR Processing Test</h1>
-      
+
       {isLoading ? (
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -111,7 +111,7 @@ export default function OCRTestPage() {
           }}
         />
       )}
-      
+
       <div className="mt-8">
         <Link
           href="/"

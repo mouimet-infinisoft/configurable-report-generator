@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { useOCR } from '@/lib/ocr/use-ocr';
 import { OCRLanguage } from '@/lib/ocr/tesseract-service';
 import { LanguageSelector } from './language-selector';
@@ -178,12 +177,11 @@ export function OCRProcessor({ images, onComplete }: OCRProcessorProps) {
                   className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
                 >
                   <div className="relative h-40">
-                    <Image
+                    {/* Use regular img tag for now to debug */}
+                    <img
                       src={image.url}
                       alt={image.name}
                       className="w-full h-full object-cover"
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
                     />
                   </div>
                   <div className="p-3">

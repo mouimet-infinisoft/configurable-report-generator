@@ -48,17 +48,17 @@ export default function OCRPage() {
 
         if (imageError) throw imageError;
 
-        // Get public URLs for the images
+        // Get signed URLs for the images (since they're in a private bucket)
         const imagesWithUrls = await Promise.all(
           imageData.map(async (image) => {
             const bucket = image.mime_type.startsWith('image/') ? 'images' : 'pdfs';
-            const { data: urlData } = supabase.storage
+            const { data: urlData } = await supabase.storage
               .from(bucket)
-              .getPublicUrl(image.storage_path);
+              .createSignedUrl(image.storage_path, 60 * 60); // 1 hour expiry
 
             return {
               id: image.id,
-              url: urlData.publicUrl,
+              url: urlData?.signedUrl || '',
               name: image.filename,
             };
           })

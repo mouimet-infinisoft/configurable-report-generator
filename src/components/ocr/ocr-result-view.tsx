@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { OCRResult } from '@/lib/ocr/tesseract-service';
 
 interface OCRResultViewProps {
@@ -14,19 +13,19 @@ export function OCRResultView({ result, imageUrl, onEdit }: OCRResultViewProps) 
   const [isEditing, setIsEditing] = useState(false);
   const [editedText, setEditedText] = useState(result.text);
   const [viewMode, setViewMode] = useState<'side-by-side' | 'text-only' | 'image-only'>('side-by-side');
-  
+
   const handleSave = () => {
     if (onEdit) {
       onEdit(editedText);
     }
     setIsEditing(false);
   };
-  
+
   const renderConfidenceIndicator = () => {
     const confidence = result.confidence;
     let color = 'bg-red-500';
     let label = 'Low';
-    
+
     if (confidence >= 90) {
       color = 'bg-green-500';
       label = 'High';
@@ -34,7 +33,7 @@ export function OCRResultView({ result, imageUrl, onEdit }: OCRResultViewProps) 
       color = 'bg-yellow-500';
       label = 'Medium';
     }
-    
+
     return (
       <div className="flex items-center space-x-2">
         <div className={`w-3 h-3 rounded-full ${color}`}></div>
@@ -44,7 +43,7 @@ export function OCRResultView({ result, imageUrl, onEdit }: OCRResultViewProps) 
       </div>
     );
   };
-  
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -90,20 +89,19 @@ export function OCRResultView({ result, imageUrl, onEdit }: OCRResultViewProps) 
         </div>
         {renderConfidenceIndicator()}
       </div>
-      
+
       <div className={`p-4 ${viewMode === 'side-by-side' ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : ''}`}>
         {(viewMode === 'side-by-side' || viewMode === 'image-only') && (
           <div className="relative h-64 md:h-auto">
-            <Image
+            {/* Use regular img tag for now to debug */}
+            <img
               src={imageUrl}
               alt="Original image"
-              fill
-              className="object-contain"
-              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-contain w-full h-full"
             />
           </div>
         )}
-        
+
         {(viewMode === 'side-by-side' || viewMode === 'text-only') && (
           <div className="h-64 md:h-auto overflow-auto">
             {isEditing ? (
