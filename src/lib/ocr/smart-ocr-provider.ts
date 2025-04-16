@@ -21,9 +21,9 @@ export async function processImage(
   imageUrl: string,
   options: OCROptions = {}
 ): Promise<OCRResult> {
-  const { language = 'eng', preferAI = false, useMistral = false } = options;
+  const { language = 'eng', preferAI = false, useMistral = true } = options;
 
-  // If Mistral is explicitly requested, use it
+  // If Mistral is explicitly requested or not explicitly disabled, use it as the default
   if (useMistral) {
     return extractTextWithMistral(imageUrl, options);
   }

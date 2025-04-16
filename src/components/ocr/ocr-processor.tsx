@@ -21,7 +21,7 @@ interface OCRProcessorProps {
 export function OCRProcessor({ images, onComplete, onImagesUploaded }: OCRProcessorProps) {
   const [language, setLanguage] = useState<OCRLanguage>('fra');
   const [useAI, setUseAI] = useState<boolean>(true);
-  const [useMistral, setUseMistral] = useState<boolean>(false);
+  const [useMistral, setUseMistral] = useState<boolean>(true); // Set Mistral to true by default
   // Track which image is being processed
   const [, setCurrentImageIndex] = useState<number | null>(null);
   const [processedImages, setProcessedImages] = useState<string[]>([]);
@@ -173,47 +173,41 @@ export function OCRProcessor({ images, onComplete, onImagesUploaded }: OCRProces
 
           <div className="flex items-center space-x-2 mt-4">
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Use AI for handwritten text
+              Use Mistral Pixtral for advanced OCR
+            </label>
+            <input
+              type="checkbox"
+              checked={useMistral}
+              onChange={(e) => setUseMistral(e.target.checked)}
+              disabled={isProcessing}
+              className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+            />
+            {useMistral && (
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                Best for handwritten text and complex documents
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center space-x-2 mt-4">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Use AI for handwritten text (Legacy)
             </label>
             <input
               type="checkbox"
               checked={useAI}
               onChange={(e) => {
                 setUseAI(e.target.checked);
-                // If turning off AI, also turn off Mistral
-                if (!e.target.checked) {
-                  setUseMistral(false);
-                }
               }}
-              disabled={isProcessing}
+              disabled={isProcessing || useMistral} // Disable if Mistral is selected
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
-            {useAI && (
+            {useAI && !useMistral && (
               <span className="text-xs text-gray-500 dark:text-gray-400">
-                Recommended for handwritten French text
+                Legacy option for Together AI OCR
               </span>
             )}
           </div>
-
-          {useAI && (
-            <div className="flex items-center space-x-2 mt-4">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Use Mistral Pixtral for advanced OCR
-              </label>
-              <input
-                type="checkbox"
-                checked={useMistral}
-                onChange={(e) => setUseMistral(e.target.checked)}
-                disabled={isProcessing || !useAI}
-                className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-              />
-              {useMistral && (
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  Best for handwritten text and complex documents
-                </span>
-              )}
-            </div>
-          )}
 
           {isProcessing && (
             <OCRProgress
