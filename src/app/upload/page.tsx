@@ -1,58 +1,48 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth/auth-context';
 import { UploadContainer } from '@/components/upload/upload-container';
 import { UploadResult } from '@/lib/upload';
-import { createReport, getUserReports } from '@/lib/db/reports';
+import { createReport } from '@/lib/db/reports';
 
 export default function UploadPage() {
   const { user } = useAuth();
   const [uploadResults, setUploadResults] = useState<UploadResult[]>([]);
   const [reportId, setReportId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Get or create a test report when the component mounts
-  useEffect(() => {
-    async function getOrCreateTestReport() {
-      if (!user) return;
+  // Create a test report when needed
+  const createTestReport = async () => {
+    if (!user) return null;
 
-      try {
-        setIsLoading(true);
-        setError(null);
+    try {
+      setIsLoading(true);
+      setError(null);
 
-        // First, check if the user already has any reports
-        const reports = await getUserReports();
+      const { data, error } = await createReport({
+        title: 'Test Report for Image Upload',
+        content: {},
+        owner_id: user.id,
+        status: 'draft',
+      });
 
-        if (reports.length > 0) {
-          // Use the first report if one exists
-          setReportId(reports[0].id);
-        } else {
-          // Create a new test report if none exist
-          const { data, error } = await createReport({
-            title: 'Test Report for Image Upload',
-            content: {},
-            owner_id: user.id,
-            status: 'draft',
-          });
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create test report');
 
-          if (error) throw error;
-          if (!data) throw new Error('Failed to create test report');
-
-          setReportId(data.id);
-        }
-      } catch (err) {
-        console.error('Error getting/creating test report:', err);
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setIsLoading(false);
-      }
+      return data.id;
+    } catch (err) {
+      console.error('Error creating test report:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
+      return null;
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    getOrCreateTestReport();
-  }, [user]);
+  // Note: We'll create the report on demand when the user clicks the button
 
   const handleUploadComplete = (results: UploadResult[]) => {
     setUploadResults(results);
@@ -89,7 +79,7 @@ export default function UploadPage() {
         {isLoading ? (
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            <span className="ml-3 text-gray-600 dark:text-gray-400">Loading report...</span>
+            <span className="ml-3 text-gray-600 dark:text-gray-400">Creating report...</span>
           </div>
         ) : error ? (
           <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-md text-red-700 dark:text-red-300">
@@ -104,14 +94,19 @@ export default function UploadPage() {
         ) : (
           <div className="text-center py-8">
             <p className="text-gray-600 dark:text-gray-400">
-              No report available. Please create a report first.
+              You need to create a report before uploading images.
             </p>
-            <Link
-              href="/reports/new"
+            <button
+              onClick={async () => {
+                const newReportId = await createTestReport();
+                if (newReportId) {
+                  setReportId(newReportId);
+                }
+              }}
               className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
             >
-              Create Report
-            </Link>
+              Create Test Report
+            </button>
           </div>
         )}
 

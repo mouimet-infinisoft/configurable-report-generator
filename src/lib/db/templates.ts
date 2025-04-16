@@ -12,9 +12,20 @@ export type TemplateSharingInsert = Database['public']['Tables']['template_shari
  * Get all templates for the current user
  */
 export async function getUserTemplates() {
+  // Get the current user's session
+  const { data: { session } } = await supabase.auth.getSession();
+
+  // If no session, return empty array
+  if (!session) {
+    console.error('Error fetching templates: No authenticated user');
+    return [];
+  }
+
+  // Get templates for the current user
   const { data, error } = await supabase
     .from('templates')
     .select('*')
+    .eq('owner_id', session.user.id)
     .order('updated_at', { ascending: false });
 
   if (error) {

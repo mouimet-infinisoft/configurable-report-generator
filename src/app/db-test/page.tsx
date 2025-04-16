@@ -87,17 +87,13 @@ export default function DatabaseTest() {
       return;
     }
 
-    if (templates.length === 0) {
-      setTestResult({ success: false, message: 'You must create a template first' });
-      return;
-    }
-
     try {
       const { data, error } = await createReport({
         title: `Test Report ${Date.now()}`,
         content: { sections: [{ title: 'Report Section', content: 'This is a test report' }] },
         owner_id: user.id,
-        template_id: templates[0].id
+        // Use template if available, but it's optional
+        template_id: templates.length > 0 ? templates[0].id : undefined
       });
 
       if (error) throw error;
@@ -166,7 +162,7 @@ export default function DatabaseTest() {
             <button
               onClick={handleCreateReport}
               className="px-4 py-2 bg-blue-500 text-white rounded mb-2"
-              disabled={templates.length === 0}
+              // Templates are optional for reports
             >
               Create Test Report
             </button>

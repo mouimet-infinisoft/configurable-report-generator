@@ -9,9 +9,20 @@ export type ReportUpdate = Database['public']['Tables']['reports']['Update'];
  * Get all reports for the current user
  */
 export async function getUserReports() {
+  // Get the current user's session
+  const { data: { session } } = await supabase.auth.getSession();
+
+  // If no session, return empty array
+  if (!session) {
+    console.error('Error fetching reports: No authenticated user');
+    return [];
+  }
+
+  // Get reports for the current user
   const { data, error } = await supabase
     .from('reports')
     .select('*, templates(name)')
+    .eq('owner_id', session.user.id)
     .order('updated_at', { ascending: false });
 
   if (error) {
