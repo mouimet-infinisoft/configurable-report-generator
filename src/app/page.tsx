@@ -80,6 +80,13 @@ export default function Home() {
               <h3 className="font-medium">AI Enhancement</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Test AI text enhancement with Vercel AI SDK</p>
             </Link>
+            <Link
+              className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800"
+              href="/mistral-ocr"
+            >
+              <h3 className="font-medium">Mistral OCR</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Test OCR with Mistral's Pixtral model</p>
+            </Link>
           </div>
         </div>
       </main>
