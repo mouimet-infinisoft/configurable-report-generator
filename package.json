@@ -12,6 +12,7 @@
     "supabase:types": "supabase gen types typescript --local > src/types/supabase.ts"
   },
   "dependencies": {
+    "@ai-sdk/mistral": "^1.2.7",
     "@ai-sdk/togetherai": "^0.2.11",
     "@hookform/resolvers": "^5.0.1",
     "@radix-ui/react-label": "^2.1.3",
