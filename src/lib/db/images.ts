@@ -102,16 +102,16 @@ export async function uploadImage(file: File, reportId: string, ownerId: string)
   // First upload the file to storage
   const filename = `${Date.now()}-${file.name}`;
   const storagePath = `${ownerId}/${reportId}/${filename}`;
-  
-  const { data: storageData, error: storageError } = await supabase.storage
+
+  const { error: storageError } = await supabase.storage
     .from('images')
     .upload(storagePath, file);
-    
+
   if (storageError) {
     console.error('Error uploading image to storage:', storageError);
     return { error: storageError };
   }
-  
+
   // Then create a record in the images table
   const imageRecord: ImageInsert = {
     filename,
@@ -121,7 +121,7 @@ export async function uploadImage(file: File, reportId: string, ownerId: string)
     owner_id: ownerId,
     report_id: reportId
   };
-  
+
   // If it's an image, try to get dimensions
   if (file.type.startsWith('image/')) {
     try {
@@ -136,18 +136,18 @@ export async function uploadImage(file: File, reportId: string, ownerId: string)
         };
       });
     } catch (err) {
-      console.error('Error getting image dimensions:', err);
+      console.error('Error getting image dimensions:', err instanceof Error ? err.message : err);
     }
   }
-  
+
   const { data, error } = await createImage(imageRecord);
-  
+
   if (error) {
     // If there was an error creating the record, delete the uploaded file
     await supabase.storage.from('images').remove([storagePath]);
     return { error };
   }
-  
+
   return { data };
 }
 
@@ -158,6 +158,6 @@ export async function getImageUrl(storagePath: string) {
   const { data } = await supabase.storage
     .from('images')
     .getPublicUrl(storagePath);
-    
+
   return data.publicUrl;
 }
