@@ -38,43 +38,45 @@ export async function extractTextFromImage(
   const { language = 'eng', onProgress } = options;
 
   try {
-    // Create a new worker
+    // Create a worker with progress logging
+    // Use type assertion to work around TypeScript limitations with the Tesseract.js API
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const worker: any = await createWorker(language);
+    const workerOptions: any = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      logger: (m: any) => {
+        if (onProgress && typeof m.progress !== 'undefined') {
+          onProgress({
+            status: m.status,
+            progress: m.progress
+          });
+        }
+      }
+    };
+    // Use type assertion for the worker to handle TypeScript limitations
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const worker: any = await createWorker(workerOptions);
 
-    // Set up progress tracking if provided
-    if (onProgress) {
-      worker.setProgressHandler((progress: { status: string; progress: number }) => {
-        onProgress(progress);
-      });
-    }
+    // Load language data
+    await worker.loadLanguage(language);
+    await worker.initialize(language);
 
     // Recognize text in the image
-    const result = await worker.recognize(imageUrl);
+    const { data } = await worker.recognize(imageUrl);
 
     // Terminate the worker when done
     await worker.terminate();
 
     // Parse paragraphs
-    const paragraphs = result.data.text
+    const paragraphs = data.text
       .split('\n\n')
       .map((p: string) => p.trim())
       .filter((p: string) => p.length > 0);
 
     // Create a structured result
     const ocrResult: OCRResult = {
-      text: result.data.text,
-      confidence: result.data.confidence,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      words: result.data.words?.map((word: any) => ({
-        text: word.text,
-        confidence: word.confidence,
-        bbox: word.bbox,
-      })),
+      text: data.text,
+      confidence: data.confidence,
       paragraphs,
-      language: result.data.language,
-      imageWidth: result.data.imageWidth,
-      imageHeight: result.data.imageHeight,
     };
 
     return ocrResult;
