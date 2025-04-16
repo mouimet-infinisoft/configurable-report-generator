@@ -6,7 +6,7 @@ import { OCRLanguage, OCRResult } from '@/lib/ocr/types';
 import { LanguageSelector } from './language-selector';
 import { OCRProgress } from './ocr-progress';
 import { OCRResultView } from './ocr-result-view';
-import { saveOCRResult } from '@/lib/db/ocr-results';
+import { saveOCRResultToMemory } from '@/lib/ocr/memory-storage';
 
 interface OCRProcessorProps {
   images: string[] | Array<{
@@ -19,7 +19,7 @@ interface OCRProcessorProps {
 }
 
 export function OCRProcessor({ images, onComplete, onImagesUploaded }: OCRProcessorProps) {
-  const [language, setLanguage] = useState<OCRLanguage>('eng');
+  const [language, setLanguage] = useState<OCRLanguage>('fra');
   const [useAI, setUseAI] = useState<boolean>(true);
   // Track which image is being processed
   const [, setCurrentImageIndex] = useState<number | null>(null);
@@ -83,8 +83,8 @@ export function OCRProcessor({ images, onComplete, onImagesUploaded }: OCRProces
 
     if (result) {
       try {
-        // Save the OCR result to the database
-        await saveOCRResult(formattedImages[index].id, result);
+        // Save the OCR result to memory storage
+        saveOCRResultToMemory(formattedImages[index].id, result);
 
         // Mark this image as processed
         setProcessedImages(prev => [...prev, formattedImages[index].id]);
@@ -96,23 +96,35 @@ export function OCRProcessor({ images, onComplete, onImagesUploaded }: OCRProces
 
   // Process all images
   const handleProcessAll = async () => {
-    if (isProcessing || formattedImages.length === 0) return;
+    console.log('Processing all images...');
+    if (isProcessing || formattedImages.length === 0) {
+      console.log('Cannot process: isProcessing =', isProcessing, 'formattedImages.length =', formattedImages.length);
+      return;
+    }
 
     reset();
+    console.log('Processing images with URLs:', imageUrls);
     const results = await processImages(imageUrls);
+    console.log('OCR results received:', results.length);
 
-    // Save all results to the database
+    // Save all results to memory storage
     if (results.length > 0) {
+      console.log('Saving OCR results to memory storage...');
       try {
         for (let i = 0; i < results.length; i++) {
+          console.log(`Processing result ${i+1}/${results.length}, has text:`, !!results[i].text);
           if (results[i].text) {
-            await saveOCRResult(formattedImages[i].id, results[i]);
+            saveOCRResultToMemory(formattedImages[i].id, results[i]);
             setProcessedImages(prev => [...prev, formattedImages[i].id]);
+            console.log(`Saved result ${i+1} with ID:`, formattedImages[i].id);
           }
         }
 
         if (onComplete) {
+          console.log('Calling onComplete with results:', results.length);
           onComplete(results);
+        } else {
+          console.log('No onComplete callback provided');
         }
       } catch (err) {
         console.error('Error saving OCR results:', err);
@@ -137,8 +149,8 @@ export function OCRProcessor({ images, onComplete, onImagesUploaded }: OCRProces
         text,
       };
 
-      // Save the edited result to the database
-      await saveOCRResult(formattedImages[index].id, editedResult);
+      // Save the edited result to memory storage
+      saveOCRResultToMemory(formattedImages[index].id, editedResult);
     } catch (err) {
       console.error('Error saving edited OCR result:', err);
     }

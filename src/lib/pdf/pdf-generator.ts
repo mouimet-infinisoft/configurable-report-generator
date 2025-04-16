@@ -14,49 +14,30 @@ export async function generatePDF(
   enhancementResult: EnhancementResult,
   options: PDFGenerationOptions = {}
 ): Promise<Blob> {
+  console.log('PDF Generator called with result:', enhancementResult);
   // In a real implementation, we would use React-PDF to generate the PDF
   // For the MVP, we'll use a simple approach with browser APIs
-  
+
   const { title = 'Generated Report', author = '', date = new Date().toLocaleDateString() } = options;
-  
+
   // Create HTML content for the PDF
+  console.log('Creating HTML content with options:', { title, author, date });
   const htmlContent = createHTMLContent(enhancementResult, { title, author, date });
-  
-  // For the MVP, we'll use the browser's print functionality
-  // In a production app, we would use React-PDF or a similar library
-  
-  // Create a hidden iframe to render the HTML
-  const iframe = document.createElement('iframe');
-  iframe.style.display = 'none';
-  document.body.appendChild(iframe);
-  
-  // Write the HTML content to the iframe
-  iframe.contentDocument?.open();
-  iframe.contentDocument?.write(htmlContent);
-  iframe.contentDocument?.close();
-  
-  // Return a promise that resolves when the iframe is loaded
-  return new Promise((resolve) => {
-    iframe.onload = async () => {
-      try {
-        // Use html2canvas and jsPDF in a real implementation
-        // For MVP, we'll just return a simple blob
-        const blob = new Blob([htmlContent], { type: 'text/html' });
-        
-        // Clean up
-        document.body.removeChild(iframe);
-        
-        resolve(blob);
-      } catch (error) {
-        console.error('Error generating PDF:', error);
-        document.body.removeChild(iframe);
-        
-        // Return a simple error message as blob
-        const errorHtml = `<html><body><h1>Error Generating PDF</h1><p>${error}</p></body></html>`;
-        resolve(new Blob([errorHtml], { type: 'text/html' }));
-      }
-    };
-  });
+  console.log('HTML content created, length:', htmlContent.length);
+
+  try {
+    // For MVP, we'll just return a simple blob directly
+    // This is more reliable than using iframes
+    console.log('Creating blob directly from HTML content...');
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    console.log('Blob created successfully, size:', blob.size);
+    return blob;
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    // Return a simple error message as blob
+    const errorHtml = `<html><body><h1>Error Generating PDF</h1><p>${error}</p></body></html>`;
+    return new Blob([errorHtml], { type: 'text/html' });
+  }
 }
 
 /**
@@ -68,9 +49,9 @@ function createHTMLContent(
 ): string {
   const { title, author, date } = options;
   const { enhancedText, sections } = enhancementResult;
-  
+
   let content = '';
-  
+
   // If we have parsed sections, use them
   if (sections && sections.length > 0) {
     content = sections.map(section => `
@@ -83,7 +64,7 @@ function createHTMLContent(
     // Otherwise use the raw enhanced text
     content = `<div>${enhancedText.replace(/\n/g, '<br>')}</div>`;
   }
-  
+
   return `
     <!DOCTYPE html>
     <html>

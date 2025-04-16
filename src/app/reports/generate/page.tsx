@@ -7,7 +7,7 @@ import { OCRTextEditor } from '@/components/ocr/ocr-text-editor';
 import { ReportPreview } from '@/components/report/report-preview';
 import { enhanceText, EnhancementResult } from '@/lib/ai/text-enhancement';
 import { OCRResult } from '@/lib/ocr/types';
-import { saveOCRResult } from '@/lib/db/ocr-results';
+import { saveOCRResultToMemory } from '@/lib/ocr/memory-storage';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
@@ -24,9 +24,13 @@ export default function GenerateReportPage() {
   };
 
   const handleOCRComplete = (results: OCRResult[]) => {
+    console.log('OCR complete callback received results:', results.length);
     if (results.length > 0) {
+      console.log('Setting OCR result and changing tab to edit');
       setOcrResult(results[0]);
       setActiveTab('edit');
+    } else {
+      console.log('No OCR results received');
     }
   };
 
@@ -37,8 +41,8 @@ export default function GenerateReportPage() {
       // Generate a unique ID for the image
       const imageId = `img-${Date.now()}`;
 
-      // Save the edited OCR result to the database
-      await saveOCRResult(imageId, {
+      // Save the edited OCR result to memory storage
+      saveOCRResultToMemory(imageId, {
         ...ocrResult,
         text
       });
@@ -55,15 +59,24 @@ export default function GenerateReportPage() {
   };
 
   const handleEnhanceText = async (text: string) => {
+    console.log('Enhancing text, length:', text.length);
     setIsEnhancing(true);
 
     try {
+      console.log('Calling enhanceText with language:', ocrResult?.language || 'french');
       const result = await enhanceText(text, {
-        language: ocrResult?.language || 'english',
+        language: ocrResult?.language || 'french',
+        reportType: 'evaluation',
       });
 
-      setEnhancementResult(result);
-      setActiveTab('preview');
+      console.log('Enhancement result received:', result ? 'success' : 'null');
+      if (result) {
+        console.log('Setting enhancement result and changing tab to preview');
+        setEnhancementResult(result);
+        setActiveTab('preview');
+      } else {
+        console.error('Received null enhancement result');
+      }
     } catch (error) {
       console.error('Error enhancing text:', error);
       toast.error('Error enhancing text', {
@@ -108,28 +121,45 @@ export default function GenerateReportPage() {
         </TabsContent>
 
         <TabsContent value="edit" className="mt-6">
-          {ocrResult && (
-            <OCRTextEditor
-              result={ocrResult}
-              onSave={handleSaveText}
-              onEnhance={handleEnhanceText}
-              isProcessing={isEnhancing}
-            />
+          {ocrResult ? (
+            <>
+              <OCRTextEditor
+                result={ocrResult}
+                onSave={handleSaveText}
+                onEnhance={handleEnhanceText}
+                isProcessing={isEnhancing}
+              />
+              <div className="mt-4">
+                <Button variant="outline" onClick={() => setActiveTab('upload')}>
+                  Back to Upload
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+              <h2 className="text-xl font-semibold mb-4">No OCR Text Available</h2>
+              <p className="mb-4">No OCR text has been processed yet. Please go back to the Upload tab and process some images.</p>
+              <Button variant="outline" onClick={() => setActiveTab('upload')}>
+                Back to Upload
+              </Button>
+            </div>
           )}
-
-          <div className="mt-4">
-            <Button variant="outline" onClick={() => setActiveTab('upload')}>
-              Back to Upload
-            </Button>
-          </div>
         </TabsContent>
 
         <TabsContent value="preview" className="mt-6">
-          {enhancementResult && (
+          {enhancementResult ? (
             <ReportPreview
               enhancementResult={enhancementResult}
               onBack={handleBackToEditor}
             />
+          ) : (
+            <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+              <h2 className="text-xl font-semibold mb-4">No Preview Available</h2>
+              <p className="mb-4">The text has not been enhanced yet. Please go back to the Edit Text tab and click "Enhance with AI".</p>
+              <Button variant="outline" onClick={() => setActiveTab('edit')}>
+                Back to Editor
+              </Button>
+            </div>
           )}
         </TabsContent>
       </Tabs>

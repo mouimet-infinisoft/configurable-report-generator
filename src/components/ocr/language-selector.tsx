@@ -11,9 +11,9 @@ interface LanguageSelectorProps {
 
 export function LanguageSelector({ value, onChange, disabled = false }: LanguageSelectorProps) {
   const languages: { value: OCRLanguage; label: string }[] = [
-    { value: 'eng', label: 'English' },
     { value: 'fra', label: 'French' },
     { value: 'eng+fra', label: 'English & French' },
+    { value: 'eng', label: 'English' },
   ];
 
   return (
@@ -35,7 +35,7 @@ export function LanguageSelector({ value, onChange, disabled = false }: Language
         ))}
       </select>
       <p className="text-xs text-gray-500 dark:text-gray-400">
-        Select the language of the text in your images for better OCR results.
+        Select the language of the text in your images. French is recommended for evaluation reports.
       </p>
     </div>
   );

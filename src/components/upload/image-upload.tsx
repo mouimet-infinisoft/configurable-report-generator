@@ -13,10 +13,11 @@ interface ImageUploadProps {
 export function ImageUpload({ onUpload, maxFiles = 10 }: ImageUploadProps) {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  
+
   const onDrop = useCallback((acceptedFiles: File[]) => {
+    console.log('Files dropped:', acceptedFiles.length);
     setIsUploading(true);
-    
+
     // Convert files to data URLs
     const promises = acceptedFiles.map(file => {
       return new Promise<string>((resolve) => {
@@ -27,19 +28,22 @@ export function ImageUpload({ onUpload, maxFiles = 10 }: ImageUploadProps) {
         reader.readAsDataURL(file);
       });
     });
-    
+
     // Process all files
+    console.log('Converting files to data URLs...');
     Promise.all(promises)
       .then(dataUrls => {
+        console.log('Files converted to data URLs:', dataUrls.length);
         const newImages = [...uploadedImages, ...dataUrls];
         setUploadedImages(newImages);
+        console.log('Calling onUpload with images:', newImages.length);
         onUpload(newImages);
       })
       .finally(() => {
         setIsUploading(false);
       });
   }, [uploadedImages, onUpload]);
-  
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
@@ -48,21 +52,21 @@ export function ImageUpload({ onUpload, maxFiles = 10 }: ImageUploadProps) {
     maxFiles,
     disabled: isUploading
   });
-  
+
   const removeImage = (index: number) => {
     const newImages = [...uploadedImages];
     newImages.splice(index, 1);
     setUploadedImages(newImages);
     onUpload(newImages);
   };
-  
+
   return (
     <div className="space-y-4">
       <div
         {...getRootProps()}
         className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-          isDragActive 
-            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+          isDragActive
+            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
             : 'border-gray-300 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-600'
         }`}
       >
@@ -84,7 +88,7 @@ export function ImageUpload({ onUpload, maxFiles = 10 }: ImageUploadProps) {
           </div>
         )}
       </div>
-      
+
       {uploadedImages.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-lg font-medium">Uploaded Images</h3>

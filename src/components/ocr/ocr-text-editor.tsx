@@ -13,18 +13,23 @@ interface OCRTextEditorProps {
   isProcessing?: boolean;
 }
 
-export function OCRTextEditor({ 
-  result, 
-  onSave, 
-  onEnhance, 
-  isProcessing = false 
+export function OCRTextEditor({
+  result,
+  onSave,
+  onEnhance,
+  isProcessing = false
 }: OCRTextEditorProps) {
   const [text, setText] = useState('');
-  
+
   // Update text when result changes
   useEffect(() => {
+    console.log('OCR result received in editor:', result);
     if (result?.text) {
+      console.log('Setting text from result, length:', result.text.length);
       setText(result.text);
+    } else {
+      console.log('No text in OCR result, using default text');
+      setText('No text was extracted from the image. You can manually enter text here.');
     }
   }, [result]);
 
@@ -58,14 +63,14 @@ export function OCRTextEditor({
         />
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           onClick={handleSave}
           disabled={isProcessing || !text}
         >
           Save Text
         </Button>
-        <Button 
+        <Button
           onClick={handleEnhance}
           disabled={isProcessing || !text}
         >
