@@ -6,7 +6,10 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:types": "supabase gen types typescript --local > src/types/supabase.ts"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.3.0",
@@ -30,6 +33,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.3.0",
+    "supabase": "^2.20.12",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
