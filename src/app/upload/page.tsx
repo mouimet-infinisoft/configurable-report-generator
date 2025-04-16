@@ -22,15 +22,31 @@ export default function UploadPage() {
       setIsLoading(true);
       setError(null);
 
+      // Create a properly formatted content object
+      const reportContent = {
+        sections: [
+          {
+            title: 'Test Report',
+            content: 'This is a test report for image upload.'
+          }
+        ]
+      };
+
       const { data, error } = await createReport({
         title: 'Test Report for Image Upload',
-        content: {},
+        content: reportContent,
         owner_id: user.id,
         status: 'draft',
       });
 
-      if (error) throw error;
-      if (!data) throw new Error('Failed to create test report');
+      if (error) {
+        console.error('Supabase error creating report:', error);
+        throw new Error(`Failed to create test report: ${error.message}`);
+      }
+
+      if (!data) {
+        throw new Error('Failed to create test report: No data returned');
+      }
 
       return data.id;
     } catch (err) {
@@ -83,8 +99,15 @@ export default function UploadPage() {
           </div>
         ) : error ? (
           <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-md text-red-700 dark:text-red-300">
-            <p>Error: {error}</p>
-            <p className="mt-2">Please try refreshing the page.</p>
+            <h3 className="font-medium">Error Creating Report</h3>
+            <p className="mt-1">{error}</p>
+            <p className="mt-2">Please check the console for more details and try again.</p>
+            <button
+              onClick={() => setError(null)}
+              className="mt-3 px-3 py-1 text-sm bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200 rounded hover:bg-red-200 dark:hover:bg-red-700"
+            >
+              Dismiss
+            </button>
           </div>
         ) : reportId ? (
           <UploadContainer
