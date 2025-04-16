@@ -155,7 +155,7 @@ export default function GenerateReportPage() {
           ) : (
             <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
               <h2 className="text-xl font-semibold mb-4">No Preview Available</h2>
-              <p className="mb-4">The text has not been enhanced yet. Please go back to the Edit Text tab and click "Enhance with AI".</p>
+              <p className="mb-4">The text has not been enhanced yet. Please go back to the Edit Text tab and click &quot;Enhance with AI&quot;.</p>
               <Button variant="outline" onClick={() => setActiveTab('edit')}>
                 Back to Editor
               </Button>

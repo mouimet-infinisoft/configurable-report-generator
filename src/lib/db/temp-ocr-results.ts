@@ -7,7 +7,16 @@ export interface TempOCRResultRecord {
   text: string;
   confidence: number;
   language: string;
-  words?: any; // JSON data for words
+  words?: Array<{
+    text: string;
+    confidence: number;
+    bbox: {
+      x0: number;
+      y0: number;
+      x1: number;
+      y1: number;
+    };
+  }>; // JSON data for words
   paragraphs?: string[];
   created_at?: string;
   updated_at?: string;
