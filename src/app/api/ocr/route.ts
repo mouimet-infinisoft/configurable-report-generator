@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 
 export async function POST(req: NextRequest) {
   try {
-    const { imageData, language = 'french' } = await req.json();
+    const { imageData } = await req.json();
 
     if (!imageData) {
       return NextResponse.json(
@@ -23,10 +23,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create prompt optimized for handwritten text extraction
-    const prompt = `Extract all the text from this handwritten document.
-                   The text is in ${language}.
-                   Return only the extracted text, maintaining paragraphs and line breaks.
-                   Do not include any explanations or additional text.`;
+    const prompt = `Extract all the text from this handwritten document. Do not include any explanations or additional text.`;
 
     // Call Together AI API directly
     const response = await fetch('https://api.together.xyz/v1/chat/completions', {

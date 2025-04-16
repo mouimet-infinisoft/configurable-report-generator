@@ -4,22 +4,12 @@ import { useAuth } from '@/lib/auth/auth-context';
 import Link from 'next/link';
 
 export default function DashboardPage() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <header className="bg-white dark:bg-gray-800 shadow">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Dashboard</h1>
-          <button
-            onClick={() => signOut()}
-            className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500"
-          >
-            Sign out
-          </button>
-        </div>
-      </header>
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <div>
+      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+      <div className="space-y-8">
         <div className="bg-white dark:bg-gray-800 shadow sm:rounded-lg">
           <div className="px-4 py-5 sm:p-6">
             <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-white">User Information</h3>
@@ -53,10 +43,10 @@ export default function DashboardPage() {
               </div>
               <div className="mt-5">
                 <Link
-                  href="#"
+                  href="/reports/generate"
                   className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500"
                 >
-                  New Report
+                  Generate Report
                 </Link>
               </div>
             </div>
@@ -70,10 +60,10 @@ export default function DashboardPage() {
               </div>
               <div className="mt-5">
                 <Link
-                  href="/reports/new"
+                  href="/reports/generate"
                   className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500"
                 >
-                  New Report
+                  Generate Report
                 </Link>
               </div>
             </div>
@@ -98,7 +88,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

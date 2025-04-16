@@ -1,30 +1,67 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useOCR } from '@/lib/ocr/use-ocr';
-import { OCRLanguage } from '@/lib/ocr/types';
+import { OCRLanguage, OCRResult } from '@/lib/ocr/types';
 import { LanguageSelector } from './language-selector';
 import { OCRProgress } from './ocr-progress';
 import { OCRResultView } from './ocr-result-view';
 import { saveOCRResult } from '@/lib/db/ocr-results';
 
 interface OCRProcessorProps {
-  images: Array<{
+  images: string[] | Array<{
     id: string;
     url: string;
     name: string;
   }>;
-  onComplete?: () => void;
+  onComplete?: (results: OCRResult[]) => void;
+  onImagesUploaded?: (images: string[]) => void;
 }
 
-export function OCRProcessor({ images, onComplete }: OCRProcessorProps) {
+export function OCRProcessor({ images, onComplete, onImagesUploaded }: OCRProcessorProps) {
   const [language, setLanguage] = useState<OCRLanguage>('eng');
   const [useAI, setUseAI] = useState<boolean>(true);
   // Track which image is being processed
   const [, setCurrentImageIndex] = useState<number | null>(null);
   const [processedImages, setProcessedImages] = useState<string[]>([]);
+  const [formattedImages, setFormattedImages] = useState<Array<{
+    id: string;
+    url: string;
+    name: string;
+  }>>([]);
 
-  const imageUrls = images.map(img => img.url);
+  // Format images to consistent structure
+  useEffect(() => {
+    if (Array.isArray(images)) {
+      if (images.length > 0) {
+        if (typeof images[0] === 'string') {
+          // Convert string[] to formatted structure
+          const formatted = (images as string[]).map((url, index) => ({
+            id: `img-${index}`,
+            url,
+            name: `Image ${index + 1}`
+          }));
+          setFormattedImages(formatted);
+
+          // Notify parent of uploaded images
+          if (onImagesUploaded) {
+            onImagesUploaded(images as string[]);
+          }
+        } else {
+          // Already in correct format
+          setFormattedImages(images as Array<{
+            id: string;
+            url: string;
+            name: string;
+          }>);
+        }
+      } else {
+        setFormattedImages([]);
+      }
+    }
+  }, [images, onImagesUploaded]);
+
+  const imageUrls = formattedImages.map(img => img.url);
 
   const {
     results,
@@ -39,18 +76,18 @@ export function OCRProcessor({ images, onComplete }: OCRProcessorProps) {
 
   // Process a single image
   const handleProcessSingle = async (index: number) => {
-    if (isProcessing || !images[index]) return;
+    if (isProcessing || !formattedImages[index]) return;
 
     setCurrentImageIndex(index);
-    const result = await processImage(images[index].url);
+    const result = await processImage(formattedImages[index].url);
 
     if (result) {
       try {
         // Save the OCR result to the database
-        await saveOCRResult(images[index].id, result);
+        await saveOCRResult(formattedImages[index].id, result);
 
         // Mark this image as processed
-        setProcessedImages(prev => [...prev, images[index].id]);
+        setProcessedImages(prev => [...prev, formattedImages[index].id]);
       } catch (err) {
         console.error('Error saving OCR result:', err);
       }
@@ -59,7 +96,7 @@ export function OCRProcessor({ images, onComplete }: OCRProcessorProps) {
 
   // Process all images
   const handleProcessAll = async () => {
-    if (isProcessing || images.length === 0) return;
+    if (isProcessing || formattedImages.length === 0) return;
 
     reset();
     const results = await processImages(imageUrls);
@@ -69,13 +106,13 @@ export function OCRProcessor({ images, onComplete }: OCRProcessorProps) {
       try {
         for (let i = 0; i < results.length; i++) {
           if (results[i].text) {
-            await saveOCRResult(images[i].id, results[i]);
-            setProcessedImages(prev => [...prev, images[i].id]);
+            await saveOCRResult(formattedImages[i].id, results[i]);
+            setProcessedImages(prev => [...prev, formattedImages[i].id]);
           }
         }
 
         if (onComplete) {
-          onComplete();
+          onComplete(results);
         }
       } catch (err) {
         console.error('Error saving OCR results:', err);
@@ -101,7 +138,7 @@ export function OCRProcessor({ images, onComplete }: OCRProcessorProps) {
       };
 
       // Save the edited result to the database
-      await saveOCRResult(images[index].id, editedResult);
+      await saveOCRResult(formattedImages[index].id, editedResult);
     } catch (err) {
       console.error('Error saving edited OCR result:', err);
     }
@@ -158,10 +195,10 @@ export function OCRProcessor({ images, onComplete }: OCRProcessorProps) {
             <button
               type="button"
               onClick={handleProcessAll}
-              disabled={isProcessing || images.length === 0}
+              disabled={isProcessing || formattedImages.length === 0}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Process All Images ({images.length})
+              Process All Images ({formattedImages.length})
             </button>
 
             {isProcessing && (
@@ -184,13 +221,13 @@ export function OCRProcessor({ images, onComplete }: OCRProcessorProps) {
         </h3>
 
         <div className="space-y-4">
-          {images.length === 0 ? (
+          {formattedImages.length === 0 ? (
             <p className="text-gray-500 dark:text-gray-400">
               No images available for OCR processing.
             </p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {images.map((image, index) => (
+              {formattedImages.map((image, index) => (
                 <div
                   key={image.id}
                   className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"

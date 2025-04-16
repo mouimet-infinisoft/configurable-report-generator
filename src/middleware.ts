@@ -30,6 +30,7 @@ export async function middleware(req: NextRequest) {
     '/db-test',
     '/upload',
     '/reports/new',
+    '/reports/generate',
     '/ocr-test',
   ];
 
