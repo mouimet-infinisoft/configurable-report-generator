@@ -57,10 +57,20 @@ Located in `src/lib/ai/ai-provider.ts`, this factory returns the appropriate imp
 Add the following to your `.env.local` file:
 
 ```
+# AI configuration
+TOGETHER_AI_API_KEY=your-together-api-key
+
 # Feature flags
+# Server-side feature flags (used in API routes)
 USE_VERCEL_AI=true|false
 USE_AI_STREAMING=true|false
+
+# Client-side feature flags (used in components)
+NEXT_PUBLIC_USE_VERCEL_AI=true|false
+NEXT_PUBLIC_USE_AI_STREAMING=true|false
 ```
+
+**Note:** Only `TOGETHER_AI_API_KEY` is required. This is used by both the direct API implementation and the Vercel AI SDK implementation.
 
 ### Client-Side Usage
 

@@ -1,5 +1,5 @@
 import { togetherai } from '@ai-sdk/togetherai';
-import { streamText } from 'ai';
+import { generateText, streamText } from 'ai';
 import { EnhancementOptions, EnhancementResult } from './types';
 import { createEnhancementPrompt, parseSections } from './utils';
 import { mockEnhanceText } from './mock-enhancement';
@@ -16,11 +16,13 @@ export async function enhanceTextWithVercelAI(
 
   try {
     // Check if Together AI API key is configured
-    const apiKey = process.env.TOGETHER_API_KEY;
-    console.log('Together API key configured:', !!apiKey);
+    // The Vercel AI SDK will use TOGETHER_AI_API_KEY automatically
+    // We only check if any key is available for fallback to mock enhancement
+    const apiKeyAvailable = !!process.env.TOGETHER_AI_API_KEY;
+    console.log('Together API key configured:', apiKeyAvailable);
 
     // If no API key, use mock enhancement instead
-    if (!apiKey) {
+    if (!apiKeyAvailable) {
       console.warn('Together AI API key is not configured, using mock enhancement');
       const enhancedText = mockEnhanceText(text);
       const sections = parseSections(enhancedText);
@@ -36,47 +38,26 @@ export async function enhanceTextWithVercelAI(
 
     // Define models to try in order of preference
     const models = [
-      'meta-llama/Llama-3.1-8B-Instruct',
-      'mistralai/Mistral-7B-Instruct-v0.2'
+      'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+      'mistralai/Mistral-7B-Instruct-v0.3'
     ];
 
     // Try each model in sequence until one works
     for (const modelName of models) {
       console.log(`Trying model with Vercel AI SDK: ${modelName}...`);
-      
-      try {
-        // Create Together AI model instance
-        const model = togetherai({
-          apiKey: apiKey,
-          model: modelName,
-        });
 
-        // Call the model using Vercel AI SDK
-        const response = await streamText({
-          model,
-          messages: [
-            {
-              role: 'system',
-              content: 'You are an expert report writer who can transform raw text into well-structured, professional reports.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
+      try {
+        // Use the generateText function from Vercel AI SDK
+        // The API key is read from TOGETHER_AI_API_KEY environment variable
+        const result = await generateText({
+          model: togetherai(modelName),
+          prompt: prompt,
           maxTokens: 2000,
           temperature: 0.7,
         });
 
-        // For non-streaming usage, we need to collect the entire response
-        const reader = response.getReader();
-        let enhancedText = '';
-        
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          enhancedText += value;
-        }
+        // Get the text from the response
+        const enhancedText = result.text;
 
         console.log(`Success with Vercel AI SDK model ${modelName}, text length:`, enhancedText.length);
 
@@ -121,14 +102,16 @@ export async function streamingEnhanceTextWithVercelAI(
   const { language = 'english', reportType = 'general', additionalInstructions = '' } = options;
 
   // Check if Together AI API key is configured
-  const apiKey = process.env.TOGETHER_API_KEY;
-  console.log('Together API key configured for streaming:', !!apiKey);
+  // The Vercel AI SDK will use TOGETHER_AI_API_KEY automatically
+  // We only check if any key is available for fallback to mock enhancement
+  const apiKeyAvailable = !!process.env.TOGETHER_AI_API_KEY;
+  console.log('Together API key configured for streaming:', apiKeyAvailable);
 
   // If no API key, use mock enhancement instead
-  if (!apiKey) {
+  if (!apiKeyAvailable) {
     console.warn('Together AI API key is not configured, using mock enhancement');
     const enhancedText = mockEnhanceText(text);
-    
+
     // Create a simple stream from the mock text
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
@@ -137,35 +120,35 @@ export async function streamingEnhanceTextWithVercelAI(
         controller.close();
       }
     });
-    
+
     return stream;
   }
 
   // Create prompt for text enhancement
   const prompt = createEnhancementPrompt(text, language, reportType, additionalInstructions);
 
-  // Create Together AI model instance
-  const model = togetherai({
-    apiKey: apiKey,
-    model: 'meta-llama/Llama-3.1-8B-Instruct',
-  });
+  try {
+    // Use the streamText function from Vercel AI SDK
+    // The API key is read from TOGETHER_AI_API_KEY environment variable
+    const result = await streamText({
+      model: togetherai('meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo'),
+      prompt: prompt,
+      maxTokens: 2000,
+      temperature: 0.7,
+    });
 
-  // Return streaming response
-  return streamText({
-    model,
-    messages: [
-      {
-        role: 'system',
-        content: 'You are an expert report writer who can transform raw text into well-structured, professional reports.'
-      },
-      {
-        role: 'user',
-        content: prompt
+    // Return the text stream
+    return result.textStream;
+  } catch (error) {
+    console.error('Error in streaming text enhancement:', error);
+
+    // Create an error stream
+    return new ReadableStream({
+      start(controller) {
+        controller.error(error);
       }
-    ],
-    maxTokens: 2000,
-    temperature: 0.7,
-  });
+    });
+  }
 }
 
 /**

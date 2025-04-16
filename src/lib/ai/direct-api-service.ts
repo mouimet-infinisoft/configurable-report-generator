@@ -15,7 +15,8 @@ export async function enhanceTextWithDirectAPI(
 
   try {
     // Check if Together AI API key is configured
-    const apiKey = process.env.TOGETHER_API_KEY;
+    // First try TOGETHER_AI_API_KEY (preferred), then fall back to TOGETHER_API_KEY (legacy)
+    const apiKey = process.env.TOGETHER_AI_API_KEY || process.env.TOGETHER_API_KEY;
     console.log('Together API key configured:', !!apiKey);
 
     // If no API key, use mock enhancement instead

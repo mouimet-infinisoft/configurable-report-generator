@@ -8,7 +8,7 @@ import { EnhanceTextFunction, StreamingEnhanceTextFunction } from './types';
  */
 export function getAIProvider(): EnhanceTextFunction {
   logAIImplementation();
-  
+
   if (AI_FEATURE_FLAGS.useVercelAI) {
     console.log('Using Vercel AI SDK for text enhancement');
     return enhanceTextWithVercelAI;
@@ -23,11 +23,11 @@ export function getAIProvider(): EnhanceTextFunction {
  */
 export function getStreamingAIProvider(): StreamingEnhanceTextFunction {
   logAIImplementation();
-  
+
   if (!AI_FEATURE_FLAGS.useVercelAI || !AI_FEATURE_FLAGS.useStreaming) {
     console.warn('Streaming requires Vercel AI SDK. Make sure both USE_VERCEL_AI and USE_AI_STREAMING are set to true.');
   }
-  
+
   return streamingEnhanceTextWithVercelAI;
 }
 

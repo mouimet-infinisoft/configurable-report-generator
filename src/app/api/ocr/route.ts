@@ -20,7 +20,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if Together AI API key is configured
-    const apiKey = process.env.TOGETHER_API_KEY;
+    // First try TOGETHER_AI_API_KEY (preferred), then fall back to TOGETHER_API_KEY (legacy)
+    const apiKey = process.env.TOGETHER_AI_API_KEY || process.env.TOGETHER_API_KEY;
     console.log('Together API key configured:', !!apiKey);
     if (!apiKey) {
       console.warn('Together AI API key is not configured, using mock OCR response');

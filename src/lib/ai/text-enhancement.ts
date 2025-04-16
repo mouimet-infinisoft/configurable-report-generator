@@ -1,4 +1,4 @@
-import { isStreamingAvailable } from './ai-provider';
+import { AI_FEATURE_FLAGS } from './feature-flags';
 import { parseSections } from './utils';
 
 /**
@@ -26,7 +26,7 @@ export interface EnhancementResult {
  * Check if streaming enhancement is available and enabled
  */
 export function isStreamingEnhancementAvailable(): boolean {
-  return isStreamingAvailable();
+  return AI_FEATURE_FLAGS.useVercelAI && AI_FEATURE_FLAGS.useStreaming;
 }
 
 /**
