@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
-export default function VerifyPage() {
+function VerifyContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [verificationStatus, setVerificationStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -52,7 +52,7 @@ export default function VerifyPage() {
       <div className="bg-white dark:bg-gray-800 px-4 py-8 shadow sm:rounded-lg sm:px-10">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Email Verification</h2>
-          
+
           {verificationStatus === 'loading' && (
             <div className="mt-4">
               <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -63,7 +63,7 @@ export default function VerifyPage() {
               </div>
             </div>
           )}
-          
+
           {verificationStatus === 'success' && (
             <div className="mt-4">
               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 dark:bg-green-900">
@@ -84,7 +84,7 @@ export default function VerifyPage() {
               </div>
             </div>
           )}
-          
+
           {verificationStatus === 'error' && (
             <div className="mt-4">
               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900">
@@ -108,5 +108,24 @@ export default function VerifyPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white dark:bg-gray-800 px-4 py-8 shadow sm:rounded-lg sm:px-10">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Email Verification</h2>
+            <div className="mt-4 flex justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
+      <VerifyContent />
+    </Suspense>
   );
 }

@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+
 import { useAuth } from '@/lib/auth/auth-context';
 
 const signUpSchema = z.object({
@@ -27,7 +27,7 @@ type SignUpFormValues = z.infer<typeof signUpSchema>;
 
 export default function SignUpPage() {
   const { signUp } = useAuth();
-  const router = useRouter();
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [emailSent, setEmailSent] = useState(false);
@@ -75,7 +75,7 @@ export default function SignUpPage() {
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Check your email</h2>
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              We've sent you an email with a link to verify your account.
+              We&apos;ve sent you an email with a link to verify your account.
             </p>
           </div>
           <div className="mt-6">

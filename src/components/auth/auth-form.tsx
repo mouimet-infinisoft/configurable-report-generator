@@ -4,13 +4,13 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import Link from 'next/link';
+
 
 interface AuthFormProps {
   title: string;
   description: string;
-  schema: z.ZodObject<any>;
-  onSubmit: (data: any) => Promise<void>;
+  schema: z.ZodSchema;
+  onSubmit: (data: Record<string, unknown>) => Promise<void>;
   submitText: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
@@ -33,7 +33,7 @@ export function AuthForm({
     defaultValues: {},
   });
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: Record<string, unknown>) => {
     setIsLoading(true);
     setError(null);
 
