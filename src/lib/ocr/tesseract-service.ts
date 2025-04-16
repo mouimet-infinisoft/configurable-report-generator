@@ -38,45 +38,37 @@ export async function extractTextFromImage(
   const { language = 'eng', onProgress } = options;
 
   try {
-    // Create a worker with progress logging
-    // Use type assertion to work around TypeScript limitations with the Tesseract.js API
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const workerOptions: any = {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      logger: (m: any) => {
-        if (onProgress && typeof m.progress !== 'undefined') {
-          onProgress({
-            status: m.status,
-            progress: m.progress
-          });
-        }
-      }
-    };
-    // Use type assertion for the worker to handle TypeScript limitations
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const worker: any = await createWorker(workerOptions);
+    // Create a worker with the language option directly
+    const worker = await createWorker(language);
 
-    // Load language data
-    await worker.loadLanguage(language);
-    await worker.initialize(language);
+    // Set progress callback if provided
+    if (onProgress) {
+      // We'll manually update progress at key points
+      onProgress({ status: 'recognizing', progress: 0.5 });
+    }
 
     // Recognize text in the image
-    const { data } = await worker.recognize(imageUrl);
+    const result = await worker.recognize(imageUrl);
+
+    if (onProgress) {
+      onProgress({ status: 'recognized', progress: 1.0 });
+    }
 
     // Terminate the worker when done
     await worker.terminate();
 
     // Parse paragraphs
-    const paragraphs = data.text
+    const paragraphs = result.data.text
       .split('\n\n')
       .map((p: string) => p.trim())
       .filter((p: string) => p.length > 0);
 
     // Create a structured result
     const ocrResult: OCRResult = {
-      text: data.text,
-      confidence: data.confidence,
+      text: result.data.text,
+      confidence: result.data.confidence,
       paragraphs,
+      language: language,
     };
 
     return ocrResult;
@@ -98,9 +90,32 @@ export async function batchProcessImages(
   options: OCROptions = {}
 ): Promise<OCRResult[]> {
   const results: OCRResult[] = [];
+  const totalImages = imageUrls.length;
 
-  for (const imageUrl of imageUrls) {
-    const result = await extractTextFromImage(imageUrl, options);
+  for (let i = 0; i < imageUrls.length; i++) {
+    const imageUrl = imageUrls[i];
+
+    // Update progress for batch processing
+    if (options.onProgress) {
+      const overallProgress = i / totalImages;
+      options.onProgress({
+        status: `Processing image ${i + 1} of ${totalImages}`,
+        progress: overallProgress
+      });
+    }
+
+    const result = await extractTextFromImage(imageUrl, {
+      ...options,
+      onProgress: options.onProgress ? (progress) => {
+        // Scale the individual image progress to the overall batch progress
+        const scaledProgress = (i + progress.progress) / totalImages;
+        options.onProgress!({
+          status: progress.status,
+          progress: scaledProgress
+        });
+      } : undefined
+    });
+
     results.push(result);
   }
 
