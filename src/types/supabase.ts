@@ -42,6 +42,8 @@ export type Database = {
           id: string
           mime_type: string
           ocr_language: string | null
+          ocr_processed_at: string | null
+          ocr_status: string | null
           ocr_text: string | null
           owner_id: string
           report_id: string | null
@@ -57,6 +59,8 @@ export type Database = {
           id?: string
           mime_type: string
           ocr_language?: string | null
+          ocr_processed_at?: string | null
+          ocr_status?: string | null
           ocr_text?: string | null
           owner_id: string
           report_id?: string | null
@@ -72,6 +76,8 @@ export type Database = {
           id?: string
           mime_type?: string
           ocr_language?: string | null
+          ocr_processed_at?: string | null
+          ocr_status?: string | null
           ocr_text?: string | null
           owner_id?: string
           report_id?: string | null
@@ -86,6 +92,50 @@ export type Database = {
             columns: ["report_id"]
             isOneToOne: false
             referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ocr_results: {
+        Row: {
+          confidence: number
+          created_at: string
+          id: string
+          image_id: string
+          language: string
+          paragraphs: string[] | null
+          text: string
+          updated_at: string
+          words: Json | null
+        }
+        Insert: {
+          confidence: number
+          created_at?: string
+          id?: string
+          image_id: string
+          language: string
+          paragraphs?: string[] | null
+          text: string
+          updated_at?: string
+          words?: Json | null
+        }
+        Update: {
+          confidence?: number
+          created_at?: string
+          id?: string
+          image_id?: string
+          language?: string
+          paragraphs?: string[] | null
+          text?: string
+          updated_at?: string
+          words?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ocr_results_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: false
+            referencedRelation: "images"
             referencedColumns: ["id"]
           },
         ]
@@ -248,7 +298,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
