@@ -1,7 +1,7 @@
 'use client';
 
 // No useState needed here
-import { OCRLanguage } from '@/lib/ocr/tesseract-service';
+import { OCRLanguage } from '@/lib/ocr/types';
 
 interface LanguageSelectorProps {
   value: OCRLanguage;

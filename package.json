@@ -12,6 +12,7 @@
     "supabase:types": "supabase gen types typescript --local > src/types/supabase.ts"
   },
   "dependencies": {
+    "@ai-sdk/togetherai": "^0.2.11",
     "@hookform/resolvers": "^5.0.1",
     "@react-pdf/renderer": "^4.3.0",
     "@shadcn/ui": "^0.0.4",

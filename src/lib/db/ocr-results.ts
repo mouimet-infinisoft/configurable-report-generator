@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { OCRResult } from '@/lib/ocr/tesseract-service';
+import { OCRResult } from '@/lib/ocr/types';
 
 export interface OCRResultRecord {
   id?: string;

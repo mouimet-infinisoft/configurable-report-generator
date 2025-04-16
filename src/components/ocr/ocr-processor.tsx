@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useOCR } from '@/lib/ocr/use-ocr';
-import { OCRLanguage } from '@/lib/ocr/tesseract-service';
+import { OCRLanguage } from '@/lib/ocr/types';
 import { LanguageSelector } from './language-selector';
 import { OCRProgress } from './ocr-progress';
 import { OCRResultView } from './ocr-result-view';
@@ -19,6 +19,7 @@ interface OCRProcessorProps {
 
 export function OCRProcessor({ images, onComplete }: OCRProcessorProps) {
   const [language, setLanguage] = useState<OCRLanguage>('eng');
+  const [useAI, setUseAI] = useState<boolean>(true);
   // Track which image is being processed
   const [, setCurrentImageIndex] = useState<number | null>(null);
   const [processedImages, setProcessedImages] = useState<string[]>([]);
@@ -34,7 +35,7 @@ export function OCRProcessor({ images, onComplete }: OCRProcessorProps) {
     processImage,
     processImages,
     reset
-  } = useOCR([], { language });
+  } = useOCR([], { language, preferAI: useAI });
 
   // Process a single image
   const handleProcessSingle = async (index: number) => {
@@ -119,6 +120,24 @@ export function OCRProcessor({ images, onComplete }: OCRProcessorProps) {
             onChange={setLanguage}
             disabled={isProcessing}
           />
+
+          <div className="flex items-center space-x-2 mt-4">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Use AI for handwritten text
+            </label>
+            <input
+              type="checkbox"
+              checked={useAI}
+              onChange={(e) => setUseAI(e.target.checked)}
+              disabled={isProcessing}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            {useAI && (
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                Recommended for handwritten French text
+              </span>
+            )}
+          </div>
 
           {isProcessing && (
             <OCRProgress

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { OCRResult } from '@/lib/ocr/tesseract-service';
+import { OCRResult } from '@/lib/ocr/types';
 
 interface OCRResultViewProps {
   result: OCRResult;
@@ -35,11 +35,20 @@ export function OCRResultView({ result, imageUrl, onEdit }: OCRResultViewProps) 
     }
 
     return (
-      <div className="flex items-center space-x-2">
-        <div className={`w-3 h-3 rounded-full ${color}`}></div>
-        <span className="text-sm text-gray-600 dark:text-gray-400">
-          {label} confidence ({confidence.toFixed(1)}%)
-        </span>
+      <div className="flex flex-col space-y-1">
+        <div className="flex items-center space-x-2">
+          <div className={`w-3 h-3 rounded-full ${color}`}></div>
+          <span className="text-sm text-gray-600 dark:text-gray-400">
+            {label} confidence ({confidence.toFixed(1)}%)
+          </span>
+        </div>
+        {result.processedWithAI && (
+          <div className="flex items-center space-x-2">
+            <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300 rounded-full">
+              Processed with AI
+            </span>
+          </div>
+        )}
       </div>
     );
   };
