@@ -70,10 +70,10 @@ export default function DashboardPage() {
               </div>
               <div className="mt-5">
                 <Link
-                  href="#"
+                  href="/reports/new"
                   className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500"
                 >
-                  View Templates
+                  New Report
                 </Link>
               </div>
             </div>

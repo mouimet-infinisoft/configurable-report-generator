@@ -28,6 +28,8 @@ export async function middleware(req: NextRequest) {
     '/supabase-test',
     '/storage-test',
     '/db-test',
+    '/upload',
+    '/reports/new',
   ];
 
   // Define authentication routes

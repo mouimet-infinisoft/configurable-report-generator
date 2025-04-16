@@ -37,7 +37,7 @@ export default function Home() {
 
         <div className="mt-8 w-full">
           <h2 className="text-xl font-semibold mb-4">Test Pages</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <Link
               className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               href="/supabase-test"
@@ -58,6 +58,13 @@ export default function Home() {
             >
               <h3 className="font-medium">Database Test</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Test the database schema and operations</p>
+            </Link>
+            <Link
+              className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              href="/upload"
+            >
+              <h3 className="font-medium">Image Upload</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Test drag-and-drop image uploads</p>
             </Link>
           </div>
         </div>
