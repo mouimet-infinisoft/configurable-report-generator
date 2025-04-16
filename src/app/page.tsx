@@ -66,6 +66,13 @@ export default function Home() {
               <h3 className="font-medium">Image Upload</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Test drag-and-drop image uploads</p>
             </Link>
+            <Link
+              className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              href="/ocr-test"
+            >
+              <h3 className="font-medium">OCR Processing</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Test OCR text extraction from images</p>
+            </Link>
           </div>
         </div>
       </main>

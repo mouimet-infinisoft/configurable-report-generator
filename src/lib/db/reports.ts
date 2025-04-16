@@ -34,6 +34,34 @@ export async function getUserReports() {
 }
 
 /**
+ * Get a single report by ID
+ */
+export async function getReport(id: string) {
+  // Get the current user's session
+  const { data: { session } } = await supabase.auth.getSession();
+
+  // If no session, return null
+  if (!session) {
+    console.error('Error fetching report: No authenticated user');
+    return null;
+  }
+
+  // Get the report
+  const { data, error } = await supabase
+    .from('reports')
+    .select('*, templates(name)')
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    console.error('Error fetching report:', error);
+    return null;
+  }
+
+  return data;
+}
+
+/**
  * Get a report by ID
  */
 export async function getReportById(id: string) {
