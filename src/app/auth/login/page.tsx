@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+
 import { useAuth } from '@/lib/auth/auth-context';
 
 const loginSchema = z.object({
@@ -18,7 +18,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const { signIn } = useAuth();
-  const router = useRouter();
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,7 +46,7 @@ export default function LoginPage() {
         throw error;
       }
 
-      router.push('/dashboard');
+      // The redirection will be handled by the auth context
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invalid email or password');
       console.error('Login error:', err);

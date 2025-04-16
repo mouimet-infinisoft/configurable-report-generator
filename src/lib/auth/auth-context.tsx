@@ -34,11 +34,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Get initial session
     const getInitialSession = async () => {
       setIsLoading(true);
-      
+
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       setIsLoading(false);
     };
 
@@ -91,7 +91,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw error;
       }
 
-      router.refresh();
+      // Wait a moment for the session to be fully established
+      setTimeout(() => {
+        router.refresh();
+        router.push('/dashboard');
+      }, 100);
+
       return { data, error: null };
     } catch (error) {
       console.error('Error signing in:', error);

@@ -18,11 +18,16 @@ export async function middleware(req: NextRequest) {
 
   // Define public routes that don't require authentication
   const publicRoutes = [
+    '/',
     '/auth/login',
     '/auth/signup',
     '/auth/forgot-password',
     '/auth/reset-password',
+    '/auth/update-password',
     '/auth/verify',
+    '/supabase-test',
+    '/storage-test',
+    '/db-test',
   ];
 
   // Define authentication routes
@@ -45,7 +50,7 @@ export async function middleware(req: NextRequest) {
   }
 
   // If the user is not authenticated and trying to access a protected route, redirect to login
-  if (!isAuthenticated && !isPublicRoute && pathname !== '/') {
+  if (!isAuthenticated && !isPublicRoute) {
     return NextResponse.redirect(new URL('/auth/login', req.url));
   }
 
