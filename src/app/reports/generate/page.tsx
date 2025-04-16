@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { OCRProcessor } from '@/components/ocr/ocr-processor';
 import { ImageUpload } from '@/components/upload/image-upload';
 import { OCRTextEditor } from '@/components/ocr/ocr-text-editor';
+import { EnhancedTextEditor } from '@/components/ai/enhanced-text-editor';
 import { ReportPreview } from '@/components/report/report-preview';
 import { enhanceText, EnhancementResult } from '@/lib/ai/text-enhancement';
 import { OCRResult } from '@/lib/ocr/types';
@@ -123,8 +124,10 @@ export default function GenerateReportPage() {
         <TabsContent value="edit" className="mt-6">
           {ocrResult ? (
             <>
-              <OCRTextEditor
-                result={ocrResult}
+              <EnhancedTextEditor
+                initialText={ocrResult.text}
+                language={ocrResult.language}
+                reportType="evaluation"
                 onSave={handleSaveText}
                 onEnhance={handleEnhanceText}
                 isProcessing={isEnhancing}

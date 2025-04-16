@@ -1,5 +1,6 @@
 import { extractTextFromImage } from './tesseract-service';
 import { extractTextWithAI } from './together-ai-service';
+import { extractTextWithMistral } from './mistral-ocr-provider';
 import { OCRResult, OCROptions } from './types';
 
 /**
@@ -20,7 +21,12 @@ export async function processImage(
   imageUrl: string,
   options: OCROptions = {}
 ): Promise<OCRResult> {
-  const { language = 'eng', preferAI = false } = options;
+  const { language = 'eng', preferAI = false, useMistral = false } = options;
+
+  // If Mistral is explicitly requested, use it
+  if (useMistral) {
+    return extractTextWithMistral(imageUrl, options);
+  }
 
   // If French or AI is preferred, use AI OCR
   if (language === 'fra' || language === 'eng+fra' || preferAI) {

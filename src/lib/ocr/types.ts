@@ -4,7 +4,8 @@ export type OCRProgressCallback = (progress: { status: string; progress: number 
 export interface OCROptions {
   language?: OCRLanguage;
   onProgress?: OCRProgressCallback;
-  preferAI?: boolean; // New option to prefer AI processing
+  preferAI?: boolean; // Option to prefer AI processing
+  useMistral?: boolean; // Option to use Mistral Pixtral model
 }
 
 export interface OCRResult {
@@ -25,7 +26,8 @@ export interface OCRResult {
   imageWidth?: number;
   imageHeight?: number;
   error?: string;
-  processedWithAI?: boolean; // New field to indicate if AI was used
+  processedWithAI?: boolean; // Field to indicate if AI was used
+  model?: string; // Field to indicate which model was used
 }
 
 export interface OCRState {
@@ -39,5 +41,6 @@ export interface OCRState {
 export interface UseOCROptions {
   language?: OCRLanguage;
   preferAI?: boolean;
+  useMistral?: boolean;
   autoProcess?: boolean;
 }

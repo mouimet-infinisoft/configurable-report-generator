@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { EnhancementResult } from '@/lib/ai/text-enhancement';
 import { generatePDF, PDFGenerationOptions } from '@/lib/pdf/pdf-generator';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface ReportPreviewProps {
   enhancementResult: EnhancementResult;
@@ -56,6 +58,19 @@ export function ReportPreview({ enhancementResult, onBack }: ReportPreviewProps)
     }
   };
 
+  // Function to convert sections to markdown if they exist
+  const getMarkdownContent = () => {
+    if (enhancementResult.sections) {
+      return enhancementResult.sections.map(section => {
+        return `## ${section.title}\n\n${section.content}\n\n`;
+      }).join('');
+    }
+    return enhancementResult.enhancedText;
+  };
+
+  // Get the markdown content
+  const markdownContent = getMarkdownContent();
+
   return (
     <div className="space-y-6">
       <Card>
@@ -101,18 +116,33 @@ export function ReportPreview({ enhancementResult, onBack }: ReportPreviewProps)
               </div>
             )}
 
-            {enhancementResult.sections ? (
-              <div className="space-y-4">
-                {enhancementResult.sections.map((section, index) => (
-                  <div key={index} className="mb-4">
-                    <h2 className="text-xl font-semibold border-b pb-1 mb-2">{section.title}</h2>
-                    <div className="whitespace-pre-line">{section.content}</div>
+            <Tabs defaultValue="formatted" className="mt-4">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="formatted">Formatted</TabsTrigger>
+                <TabsTrigger value="raw">Raw Text</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="formatted" className="mt-4">
+                <div className="prose dark:prose-invert max-w-none">
+                  <ReactMarkdown>{markdownContent}</ReactMarkdown>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="raw" className="mt-4">
+                {enhancementResult.sections ? (
+                  <div className="space-y-4">
+                    {enhancementResult.sections.map((section, index) => (
+                      <div key={index} className="mb-4">
+                        <h2 className="text-xl font-semibold border-b pb-1 mb-2">{section.title}</h2>
+                        <div className="whitespace-pre-line">{section.content}</div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="whitespace-pre-line">{enhancementResult.enhancedText}</div>
-            )}
+                ) : (
+                  <div className="whitespace-pre-line">{enhancementResult.enhancedText}</div>
+                )}
+              </TabsContent>
+            </Tabs>
           </div>
         </CardContent>
         <CardFooter className="flex justify-between">
