@@ -77,69 +77,15 @@ Please format the report following EXACTLY this template structure:
 
 [Specific recommendations about hiring/training needs]
 
-You MUST follow this EXACT template structure. Fill in the sections with relevant information from the raw text. If information for a section is not available in the raw text, make a reasonable inference based on the available information. Ensure the report is written in formal, professional French with proper grammar and vocabulary.
+You MUST follow this EXACT template structure with these important rules:
+1. ONLY include information that is explicitly mentioned in the raw text
+2. DO NOT make any inferences or assumptions about missing information
+3. If information for a section is not available in the raw text, either skip that section entirely or clearly state "Information non disponible" in that section
+4. DO NOT copy or reuse any specific details from the example format below into your generated report
+5. The example below is ONLY to show the structure, not to provide content for your report
 
-Here is a complete example of the expected format:
+Ensure the report is written in formal, professional French with proper grammar and vocabulary.
 
-# Rapport d'Évaluation
-
-**Nom du chauffeur :** Oussama Leheouir
-**Date :** 15 avril 2025
-**Évaluateur :** Richard Ouimet
-
----
-
-## Contexte de l'Évaluation
-
-Cette évaluation a pour but de vérifier les compétences de conduite de M. Stéphane Massé, incluant la maîtrise du véhicule, l'application des règles de sécurité et l'attitude générale au volant dans un contexte professionnel.
-
----
-
-## Observations Initiales
-
-M. Massé s'est présenté à l'heure, vêtu de manière convenable. Il a démontré du respect et une attitude polie lors de l'accueil.
-
----
-
-## Observations en Conduite
-
-### Comportement Général
-
-- Dès la sortie du stationnement, M. Massé s'est montré distrait.
-- Il ne consulte pas régulièrement ses rétroviseurs, ce qui compromet sa vigilance.
-- Lors d'un arrêt au feu, il a affirmé que le feu était rouge alors qu'il était vert.
-- Lorsque je lui ai demandé s'il avait un problème de vision, il a répondu non.
-
-### Réactions aux Situations Routières
-
-- Sur la rue de la Commune, il a détourné son attention vers la Grande Roue, qu'il a trouvée belle, mais a cessé de regarder devant lui.
-- Il s'est alors engagé dans la voie inverse, face à d'autres véhicules. J'ai dû intervenir immédiatement.
-- Il semble distrait malgré mes remarques à ce sujet.
-- Il parle fort et fait régulièrement des commentaires sur les autres conducteurs, les taxis et les motos.
-
-### Maîtrise Technique
-
-- Il éprouve de la difficulté à freiner de manière douce et sécuritaire.
-- Il ne maîtrise pas les manœuvres de recul ; le bus ne reculait pas correctement sous sa conduite.
-- Les virages, à droite comme à gauche, ont été difficiles à exécuter correctement.
-- Lors d'une tentative de virage à droite sur la rue Saint-Antoine, il était mal positionné : il était sur la voie du centre au lieu de celle de droite.
-- Il n'a pas arrêté au retour à la voie ferrée malgré mes instructions données à l'aller. Lorsqu'interrogé, il a simplement dit : « J'ai oublié. »
-
-### Réceptivité aux Commentaires
-
-- Malgré les conseils prodigués, M. Massé a affirmé que sa méthode de conduite était préférable.
-- Il montre peu de réceptivité à la correction et semble peu disposé à ajuster son comportement de conduite.
-
----
-
-## Conclusion et Recommandations
-
-M. Stéphane Massé présente plusieurs lacunes sérieuses concernant la sécurité et le contrôle du véhicule. Son manque de vigilance, ses réflexes incertains, ainsi que sa réticence à corriger ses méthodes compromettent sa capacité à assurer un service de conduite sécuritaire.
-
-### Recommandations
-
-- **Non recommandé** pour un poste de conduite sans formation complémentaire.
-- Une **supervision accrue** et un **programme de réentraînement obligatoire** sont nécessaires avant toute réévaluation.
 `;
 
   promptText += `
