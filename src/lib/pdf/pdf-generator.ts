@@ -13,6 +13,10 @@ export interface PDFGenerationOptions {
   showTableOfContents?: boolean;
   showHeader?: boolean;
   showFooter?: boolean;
+  imageAttachments?: Array<{
+    id: string;
+    base64: string;
+  }>;
   theme?: {
     primaryColor?: string;
     secondaryColor?: string;
@@ -45,6 +49,7 @@ export async function generatePDF(
       showTableOfContents: options.showTableOfContents,
       showHeader: options.showHeader,
       showFooter: options.showFooter,
+      imageAttachments: options.imageAttachments,
       theme: options.theme
     });
 

@@ -7,6 +7,7 @@ import { PDFHeader } from './pdf-header';
 import { PDFContent } from './pdf-content';
 import { PDFFooter } from './pdf-footer';
 import { PDFTableOfContents } from './pdf-table-of-contents';
+import { PDFImagePage } from './pdf-image-page';
 
 // Create styles
 const styles = StyleSheet.create({
@@ -27,6 +28,10 @@ interface PDFDocumentProps {
   showTableOfContents?: boolean;
   showHeader?: boolean;
   showFooter?: boolean;
+  imageAttachments?: Array<{
+    id: string;
+    base64: string;
+  }>;
   theme?: {
     primaryColor?: string;
     secondaryColor?: string;
@@ -44,17 +49,19 @@ export function PDFDocument({
   showTableOfContents = false,
   showHeader = true,
   showFooter = true,
+  imageAttachments = [],
   theme = {
     primaryColor: '#2c3e50',
     secondaryColor: '#3498db',
     fontFamily: 'Helvetica'
   }
 }: PDFDocumentProps) {
-  // For simplicity, we're using a single page approach for now
-  // In a more advanced implementation, we could split content across multiple pages
-  // based on content length and page breaks
+  // Calculate total pages (1 for content + number of attachments)
+  const totalPages = 1 + (imageAttachments?.length || 0);
+
   return (
     <Document>
+      {/* Main content page */}
       <Page size={paperSize} orientation={orientation} style={styles.page}>
         {showHeader && <PDFHeader title={title} author={author} date={date} />}
 
@@ -64,8 +71,25 @@ export function PDFDocument({
 
         <PDFContent enhancementResult={enhancementResult} />
 
-        {showFooter && <PDFFooter pageNumber={1} totalPages={1} />}
+        {showFooter && <PDFFooter pageNumber={1} totalPages={totalPages} />}
       </Page>
+
+      {/* Image attachment pages */}
+      {imageAttachments && imageAttachments.length > 0 &&
+        imageAttachments.map((image, index) => (
+          <PDFImagePage
+            key={image.id}
+            imageData={image.base64}
+            imageIndex={index}
+            totalImages={imageAttachments.length}
+            pageNumber={index + 2} // Start from page 2
+            totalPages={totalPages}
+            showFooter={showFooter}
+            paperSize={paperSize}
+            orientation={orientation}
+          />
+        ))
+      }
     </Document>
   );
 }
