@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { toast } from 'sonner';
 import { EnhancementResult } from '@/lib/ai/text-enhancement';
 import { generatePDF, PDFGenerationOptions } from '@/lib/pdf/pdf-generator';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,11 @@ export function ReportPreview({ enhancementResult, onBack }: ReportPreviewProps)
   const [isGenerating, setIsGenerating] = useState(false);
   const [title, setTitle] = useState('Generated Report');
   const [author, setAuthor] = useState('');
+  const [paperSize, setPaperSize] = useState<'A4' | 'LETTER' | 'LEGAL'>('LETTER');
+  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
+  const [showTableOfContents, setShowTableOfContents] = useState(false);
+  const [showHeader, setShowHeader] = useState(true);
+  const [showFooter, setShowFooter] = useState(false);
 
   // Check if there was an error in the enhancement process
   const hasError = !!enhancementResult.error;
@@ -32,7 +38,12 @@ export function ReportPreview({ enhancementResult, onBack }: ReportPreviewProps)
       const options: PDFGenerationOptions = {
         title,
         author,
-        date: new Date().toLocaleDateString()
+        date: new Date().toLocaleDateString(),
+        paperSize,
+        orientation,
+        showTableOfContents,
+        showHeader,
+        showFooter
       };
 
       console.log('Calling generatePDF with options:', options);
@@ -43,7 +54,7 @@ export function ReportPreview({ enhancementResult, onBack }: ReportPreviewProps)
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${title.replace(/\s+/g, '-').toLowerCase()}.html`;
+      a.download = `${title.replace(/\s+/g, '-').toLowerCase()}.pdf`;
       document.body.appendChild(a);
       console.log('Triggering download...');
       a.click();
@@ -51,8 +62,15 @@ export function ReportPreview({ enhancementResult, onBack }: ReportPreviewProps)
       // Clean up
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+
+      toast.success('PDF Generated', {
+        description: 'Your report has been generated and downloaded.',
+      });
     } catch (error) {
       console.error('Error generating PDF:', error);
+      toast.error('Error Generating PDF', {
+        description: 'There was an error generating the PDF. Please try again.',
+      });
     } finally {
       setIsGenerating(false);
     }
@@ -96,6 +114,67 @@ export function ReportPreview({ enhancementResult, onBack }: ReportPreviewProps)
                 onChange={(e) => setAuthor(e.target.value)}
                 placeholder="Enter author name"
               />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <div>
+              <Label htmlFor="paperSize">Paper Size</Label>
+              <select
+                id="paperSize"
+                value={paperSize}
+                onChange={(e) => setPaperSize(e.target.value as 'A4' | 'LETTER' | 'LEGAL')}
+                className="w-full p-2 border rounded-md"
+              >
+                <option value="LETTER">Letter</option>
+                <option value="A4">A4</option>
+                <option value="LEGAL">Legal</option>
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="orientation">Orientation</Label>
+              <select
+                id="orientation"
+                value={orientation}
+                onChange={(e) => setOrientation(e.target.value as 'portrait' | 'landscape')}
+                className="w-full p-2 border rounded-md"
+              >
+                <option value="portrait">Portrait</option>
+                <option value="landscape">Landscape</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4 mt-4">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="showHeader"
+                checked={showHeader}
+                onChange={(e) => setShowHeader(e.target.checked)}
+                className="h-4 w-4"
+              />
+              <Label htmlFor="showHeader">Show Header</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="showFooter"
+                checked={showFooter}
+                onChange={(e) => setShowFooter(e.target.checked)}
+                className="h-4 w-4"
+              />
+              <Label htmlFor="showFooter">Show Footer</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="showTableOfContents"
+                checked={showTableOfContents}
+                onChange={(e) => setShowTableOfContents(e.target.checked)}
+                className="h-4 w-4"
+              />
+              <Label htmlFor="showTableOfContents">Show Table of Contents</Label>
             </div>
           </div>
 

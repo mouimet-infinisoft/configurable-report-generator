@@ -1,124 +1,65 @@
 import { EnhancementResult } from '@/lib/ai/text-enhancement';
+import { pdf, PDFDownloadLink } from '@react-pdf/renderer';
+import { PDFDocument } from '@/components/pdf/pdf-document';
+import React from 'react';
 
 export interface PDFGenerationOptions {
   title?: string;
   author?: string;
   date?: string;
   logo?: string;
+  paperSize?: 'A4' | 'LETTER' | 'LEGAL';
+  orientation?: 'portrait' | 'landscape';
+  showTableOfContents?: boolean;
+  showHeader?: boolean;
+  showFooter?: boolean;
+  theme?: {
+    primaryColor?: string;
+    secondaryColor?: string;
+    fontFamily?: string;
+  };
 }
 
 /**
- * Generate a PDF blob from enhanced text
+ * Generate a PDF blob from enhanced text using React-PDF
  */
 export async function generatePDF(
   enhancementResult: EnhancementResult,
   options: PDFGenerationOptions = {}
 ): Promise<Blob> {
   console.log('PDF Generator called with result:', enhancementResult);
-  // In a real implementation, we would use React-PDF to generate the PDF
-  // For the MVP, we'll use a simple approach with browser APIs
 
   const { title = 'Generated Report', author = '', date = new Date().toLocaleDateString() } = options;
 
-  // Create HTML content for the PDF
-  console.log('Creating HTML content with options:', { title, author, date });
-  const htmlContent = createHTMLContent(enhancementResult, { title, author, date });
-  console.log('HTML content created, length:', htmlContent.length);
-
   try {
-    // For MVP, we'll just return a simple blob directly
-    // This is more reliable than using iframes
-    console.log('Creating blob directly from HTML content...');
-    const blob = new Blob([htmlContent], { type: 'text/html' });
-    console.log('Blob created successfully, size:', blob.size);
+    console.log('Creating PDF document with React-PDF...');
+
+    // Create the PDF document
+    const document = React.createElement(PDFDocument, {
+      enhancementResult,
+      title,
+      author,
+      date,
+      paperSize: options.paperSize,
+      orientation: options.orientation,
+      showTableOfContents: options.showTableOfContents,
+      showHeader: options.showHeader,
+      showFooter: options.showFooter,
+      theme: options.theme
+    });
+
+    // Generate the PDF blob
+    console.log('Generating PDF blob...');
+    const blob = await pdf(document).toBlob();
+    console.log('PDF blob created successfully, size:', blob.size);
+
     return blob;
   } catch (error) {
-    console.error('Error generating PDF:', error);
-    // Return a simple error message as blob
+    console.error('Error generating PDF with React-PDF:', error);
+
+    // Fallback to simple HTML if React-PDF fails
+    console.log('Falling back to HTML generation...');
     const errorHtml = `<html><body><h1>Error Generating PDF</h1><p>${error}</p></body></html>`;
     return new Blob([errorHtml], { type: 'text/html' });
   }
-}
-
-/**
- * Create HTML content for the PDF
- */
-function createHTMLContent(
-  enhancementResult: EnhancementResult,
-  options: { title: string; author: string; date: string }
-): string {
-  const { title, author, date } = options;
-  const { enhancedText, sections } = enhancementResult;
-
-  let content = '';
-
-  // If we have parsed sections, use them
-  if (sections && sections.length > 0) {
-    content = sections.map(section => `
-      <div class="section">
-        <h2>${section.title}</h2>
-        <div>${section.content.replace(/\n/g, '<br>')}</div>
-      </div>
-    `).join('');
-  } else {
-    // Otherwise use the raw enhanced text
-    content = `<div>${enhancedText.replace(/\n/g, '<br>')}</div>`;
-  }
-
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>${title}</title>
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          line-height: 1.6;
-          margin: 0;
-          padding: 20px;
-          color: #333;
-        }
-        .header {
-          text-align: center;
-          margin-bottom: 30px;
-          padding-bottom: 10px;
-          border-bottom: 1px solid #ddd;
-        }
-        .title {
-          font-size: 24px;
-          margin-bottom: 5px;
-        }
-        .meta {
-          font-size: 14px;
-          color: #666;
-        }
-        .section {
-          margin-bottom: 20px;
-        }
-        h2 {
-          color: #2c3e50;
-          border-bottom: 1px solid #eee;
-          padding-bottom: 5px;
-        }
-        @media print {
-          body {
-            padding: 0;
-          }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="header">
-        <div class="title">${title}</div>
-        <div class="meta">
-          ${author ? `Author: ${author} | ` : ''}
-          Date: ${date}
-        </div>
-      </div>
-      <div class="content">
-        ${content}
-      </div>
-    </body>
-    </html>
-  `;
 }
